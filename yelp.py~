@@ -1,0 +1,72 @@
+import rauth
+import pandas as pd
+import numpy as np
+
+def authenticate():
+  """Return session object required to request a search"""
+
+  consumer_key = 'Jjw5GZkJ8rLbcrKmGW5RwA'
+  consumer_secret = 'uVgw3EhnfLEABve48wA4UmkbJp4'
+  token = 'B2nfmgjMT6a8d5XYck6bScczxW1gRxdt'
+  token_secret = '_1n06oKU5smCTns1YWBPZjjit3E'
+
+  session = rauth.OAuth1Session(
+    consumer_key = consumer_key
+    ,consumer_secret = consumer_secret
+    ,access_token = token
+    ,access_token_secret = token_secret)
+
+  return session
+
+###################################################################
+
+session = authenticate()
+params={}
+params['term']='restaurant'
+params['radius_filter']='5000'
+params['location']='20740'
+params['category_filter']='mexican'
+
+request = session.get('https://api.yelp.com/v2/search',params=params)
+data = request.json()
+
+"""
+data is a dictionary with 3 entries (location, nbr of results, businesses info)
+business info enry contain a dictionary for each business, documenting the fields
+
+make dataframe with all fields in a column, plus a column for location
+"""
+
+############# problem with missing data in json ##############
+#columns = data['region']['center'].keys()+data['businesses'][0].keys()[:-1]+data['businesses'][0]['location'].keys()[:-2]+[data['businesses'][0]['location'].keys()[-1]]
+#df.loc[i]=data['region']['center'].values()+data['businesses'][i].values()[:-2]+[str(data['businesses'][i].values()[-2])]+[str(data['businesses'][i]['location']['city'])]+[str(data['businesses'][i]['location']['display_address'])]+data['businesses'][i]['location'].values()[2:-3]+[str(data['businesses'][i]['location']['address'])]+[data['businesses'][i]['location'].values()[-1]]
+###############################################################
+
+columns = data['region']['center'].keys() + ['is_claimed','rating','review_count','name','url',
+            'is_closed','snippet_text','categories','city',
+            'state_code','postal_code','country_code',
+            'geo_accuracy','address']
+
+df = pd.DataFrame(columns=columns)
+
+#fill dataframe
+for i in xrange(len(data['businesses'])):
+  df.loc[i] = data['region']['center'].keys()+[
+          data['businesses'][i]['is_claimed'],
+          data['businesses'][i]['rating'],
+          data['businesses'][i]['review_count'],
+          data['businesses'][i]['name'],
+          data['businesses'][i]['url'],
+          data['businesses'][i]['is_closed'],
+          data['businesses'][i]['snippet_text'],
+          str(data['businesses'][i]['categories']),
+          data['businesses'][i]['location']['city'],
+          data['businesses'][i]['location']['state_code'],
+          data['businesses'][i]['location']['postal_code'],
+          data['businesses'][i]['location']['country_code'],
+          data['businesses'][i]['location']['geo_accuracy'],
+          str(data['businesses'][i]['location']['address'])]
+
+
+
+

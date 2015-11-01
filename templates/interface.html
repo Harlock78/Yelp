@@ -1,0 +1,23 @@
+<!doctype html>
+<title>Exploratory analysis</title>
+<link rel=stylesheet type=text/css href='{{ url_for('static',filename='generic_app.css')}}'>
+<div class=page>
+  <h1>Simple graphs</h1>
+  <div class=metanav>
+    <h4>
+      Two graphs are available:
+      1 : population normalized review count (averaged by cities) for restaurants with mexican food vs percentage of the population identifying as hispanic
+      2 : population normallized spread between the top reviewed restaurant and the 50% percentile (by cities) vs number of direct competitors in the city
+    </h4>
+
+    <form id='interface' method='post' action='display_graph' >
+      <p>
+    Graph number: <input type='text' name='graph_nbr' />
+      </p>
+      <p>
+    <input type='submit' value='Submit' />
+      </p>
+    </form>
+
+  </div>
+</div>
